@@ -1,9 +1,55 @@
 import React, { useState, useEffect } from "react";
-import { TextField, Grid, MenuItem } from "@mui/material";
+import {
+  TextField,
+  Grid,
+  Autocomplete,
+  Button,
+  Typography,
+} from "@mui/material";
+import { v4 as uuidv4 } from "uuid"; // Importación de uuid
 
-function AgregarOperacion({ valores, handleChange }) {
+function AgregarOperacion({ operaciones, setOperaciones, handleCloseModal }) {
   const [acciones, setAcciones] = useState([]);
+  const [valores, setValores] = useState({
+    accion: "",
+    valorSinComision: "",
+    comision: "",
+    valorOperacion: "",
+    cantidadAcciones: "",
+  });
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const nuevaOperacion = { id: uuidv4(), ...valores }; // Generar ID único usando uuid
+    const nuevasOperaciones = [...operaciones, nuevaOperacion];
+    console.log("valores: ", valores);
+    if (!acciones.includes(valores.accion)) {
+      const nuevaAccion = valores.accion;
+      const nuevasAcciones = [...acciones, nuevaAccion];
+      guardarAccionesEnLocalStorage(nuevasAcciones);
+    }
+    setOperaciones(nuevasOperaciones);
+    guardarOperacionesEnLocalStorage(nuevasOperaciones);
+    setValores({
+      accion: "",
+      valorSinComision: "",
+      comision: "",
+      valorOperacion: "",
+      cantidadAcciones: "",
+    });
+    handleCloseModal();
+  };
 
+  const handleChange = (campo, valor) => {
+    console.log("handleCahnge: ", {
+      campo,
+      valor,
+    });
+    setValores({ ...valores, [campo]: valor });
+  };
+
+  const guardarOperacionesEnLocalStorage = (operaciones) => {
+    localStorage.setItem("operaciones", JSON.stringify(operaciones));
+  };
   useEffect(() => {
     cargarAccionesDesdeLocalStorage();
   }, []);
@@ -19,40 +65,24 @@ function AgregarOperacion({ valores, handleChange }) {
     localStorage.setItem("acciones", JSON.stringify(acciones));
   };
 
-  const handleInputChange = (campo, valor) => {
-    handleChange(campo, valor);
-
-    if (campo === "accion" && valor.trim() !== "") {
-      // Filtrar acciones que coincidan con el valor ingresado
-      const accionesFiltradas = acciones.filter((acc) =>
-        acc.toLowerCase().includes(valor.toLowerCase())
-      );
-
-      // Si no se encuentra ninguna acción que coincida, permitir agregar una nueva acción
-      if (accionesFiltradas.length === 0 && !acciones.includes(valor)) {
-        setAcciones([...acciones, valor]);
-        guardarAccionesEnLocalStorage([...acciones, valor]);
-      }
-    }
-  };
-
   return (
     <form>
-      <Grid container direction="column" spacing={2}>
+      <Grid container direction="column" spacing={3}>
         <Grid item>
-          <TextField
-            label="Acción"
+          <Typography variant="h5" id="modal-title">
+            Agregar operación
+          </Typography>
+        </Grid>
+        <Grid item>
+          <Autocomplete
+            options={acciones}
+            freeSolo
             value={valores.accion}
-            onChange={(e) => handleInputChange("accion", e.target.value)}
-            fullWidth
-            select
-          >
-            {acciones.map((accion, index) => (
-              <MenuItem key={index} value={accion}>
-                {accion}
-              </MenuItem>
-            ))}
-          </TextField>
+            onInputChange={(_, value) => handleChange("accion", value)}
+            renderInput={(params) => (
+              <TextField {...params} label="Acción" fullWidth />
+            )}
+          />
         </Grid>
         <Grid item>
           <TextField
@@ -89,6 +119,11 @@ function AgregarOperacion({ valores, handleChange }) {
             onChange={(e) => handleChange("cantidadAcciones", e.target.value)}
             fullWidth
           />
+        </Grid>
+        <Grid item>
+          <Button variant="contained" onClick={handleSubmit}>
+            Enviar
+          </Button>
         </Grid>
       </Grid>
     </form>

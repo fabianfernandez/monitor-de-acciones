@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { v4 as uuidv4 } from "uuid"; // Importación de uuid
 import {
   Table,
   TableBody,
@@ -11,20 +10,13 @@ import {
   Button,
   Modal,
   Box,
-  Typography,
   TablePagination,
+  Typography,
 } from "@mui/material";
 import AgregarOperacion from "../agregar-operacion/AgregarOperacion";
 
 function TablaDeComisiones() {
   const [openModal, setOpenModal] = useState(false);
-  const [valores, setValores] = useState({
-    accion: "",
-    valorSinComision: "",
-    comision: "",
-    valorOperacion: "",
-    cantidadAcciones: "",
-  });
   const [operaciones, setOperaciones] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -35,30 +27,6 @@ function TablaDeComisiones() {
 
   const handleCloseModal = () => {
     setOpenModal(false);
-  };
-
-  const handleChange = (campo, valor) => {
-    setValores({ ...valores, [campo]: valor });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const nuevaOperacion = { id: uuidv4(), ...valores }; // Generar ID único usando uuid
-    const nuevasOperaciones = [...operaciones, nuevaOperacion];
-    setOperaciones(nuevasOperaciones);
-    guardarOperacionesEnLocalStorage(nuevasOperaciones);
-    setValores({
-      accion: "",
-      valorSinComision: "",
-      comision: "",
-      valorOperacion: "",
-      cantidadAcciones: "",
-    });
-    handleCloseModal();
-  };
-
-  const guardarOperacionesEnLocalStorage = (operaciones) => {
-    localStorage.setItem("operaciones", JSON.stringify(operaciones));
   };
 
   const cargarOperacionesDesdeLocalStorage = () => {
@@ -150,13 +118,11 @@ function TablaDeComisiones() {
             p: 4,
           }}
         >
-          <Typography variant="h5" id="modal-title">
-            Agregar operación
-          </Typography>
-          <AgregarOperacion valores={valores} handleChange={handleChange} />
-          <Button variant="contained" onClick={handleSubmit}>
-            Enviar
-          </Button>
+          <AgregarOperacion
+            operaciones={operaciones}
+            setOperaciones={setOperaciones}
+            handleCloseModal={handleCloseModal}
+          />
         </Box>
       </Modal>
     </div>
