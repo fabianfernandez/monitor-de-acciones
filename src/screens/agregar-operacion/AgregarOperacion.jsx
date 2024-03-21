@@ -24,6 +24,33 @@ function AgregarOperacion({ operaciones, setOperaciones, handleCloseModal }) {
     valorOperacion: false,
     cantidadAcciones: false,
   });
+
+  useEffect(() => {
+    cargarAccionesDesdeLocalStorage();
+  }, []);
+
+  const cargarAccionesDesdeLocalStorage = () => {
+    const accionesLocalStorage = localStorage.getItem("acciones");
+    if (accionesLocalStorage) {
+      setAcciones(JSON.parse(accionesLocalStorage));
+    }
+  };
+
+  const guardarAccionesEnLocalStorage = (acciones) => {
+    localStorage.setItem("acciones", JSON.stringify(acciones));
+  };
+
+  useEffect(() => {
+    if (valores.valorOperacion !== "" && valores.comision !== "") {
+      const valorSinComision =
+        parseFloat(valores.valorOperacion) - parseFloat(valores.comision);
+      setValores((prevState) => ({
+        ...prevState,
+        valorSinComision: valorSinComision.toString(),
+      }));
+    }
+  }, [valores.valorOperacion, valores.comision]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (
@@ -69,20 +96,6 @@ function AgregarOperacion({ operaciones, setOperaciones, handleCloseModal }) {
 
   const guardarOperacionesEnLocalStorage = (operaciones) => {
     localStorage.setItem("operaciones", JSON.stringify(operaciones));
-  };
-  useEffect(() => {
-    cargarAccionesDesdeLocalStorage();
-  }, []);
-
-  const cargarAccionesDesdeLocalStorage = () => {
-    const accionesLocalStorage = localStorage.getItem("acciones");
-    if (accionesLocalStorage) {
-      setAcciones(JSON.parse(accionesLocalStorage));
-    }
-  };
-
-  const guardarAccionesEnLocalStorage = (acciones) => {
-    localStorage.setItem("acciones", JSON.stringify(acciones));
   };
 
   return (
