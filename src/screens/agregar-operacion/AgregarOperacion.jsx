@@ -17,11 +17,34 @@ function AgregarOperacion({ operaciones, setOperaciones, handleCloseModal }) {
     valorOperacion: "",
     cantidadAcciones: "",
   });
+  const [errors, setErrors] = useState({
+    accion: false,
+    valorSinComision: false,
+    comision: false,
+    valorOperacion: false,
+    cantidadAcciones: false,
+  });
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (
+      !valores.accion ||
+      !valores.valorSinComision ||
+      !valores.comision ||
+      !valores.valorOperacion ||
+      !valores.cantidadAcciones
+    ) {
+      setErrors({
+        ...errors,
+        accion: !valores.accion,
+        valorSinComision: !valores.valorSinComision,
+        comision: !valores.comision,
+        valorOperacion: !valores.valorOperacion,
+        cantidadAcciones: !valores.cantidadAcciones,
+      });
+      return;
+    }
     const nuevaOperacion = { id: uuidv4(), ...valores }; // Generar ID único usando uuid
     const nuevasOperaciones = [...operaciones, nuevaOperacion];
-    console.log("valores: ", valores);
     if (!acciones.includes(valores.accion)) {
       const nuevaAccion = valores.accion;
       const nuevasAcciones = [...acciones, nuevaAccion];
@@ -40,11 +63,8 @@ function AgregarOperacion({ operaciones, setOperaciones, handleCloseModal }) {
   };
 
   const handleChange = (campo, valor) => {
-    console.log("handleCahnge: ", {
-      campo,
-      valor,
-    });
     setValores({ ...valores, [campo]: valor });
+    setErrors({ ...errors, [campo]: false });
   };
 
   const guardarOperacionesEnLocalStorage = (operaciones) => {
@@ -66,7 +86,7 @@ function AgregarOperacion({ operaciones, setOperaciones, handleCloseModal }) {
   };
 
   return (
-    <form>
+    <form onSubmit={handleSubmit}>
       <Grid container direction="column" spacing={3}>
         <Grid item>
           <Typography variant="h5" id="modal-title">
@@ -80,7 +100,14 @@ function AgregarOperacion({ operaciones, setOperaciones, handleCloseModal }) {
             value={valores.accion}
             onInputChange={(_, value) => handleChange("accion", value)}
             renderInput={(params) => (
-              <TextField {...params} label="Acción" fullWidth />
+              <TextField
+                {...params}
+                label="Acción"
+                fullWidth
+                error={errors.accion}
+                helperText={errors.accion && "Este campo es obligatorio"}
+                required
+              />
             )}
           />
         </Grid>
@@ -91,6 +118,9 @@ function AgregarOperacion({ operaciones, setOperaciones, handleCloseModal }) {
             value={valores.valorSinComision}
             onChange={(e) => handleChange("valorSinComision", e.target.value)}
             fullWidth
+            error={errors.valorSinComision}
+            helperText={errors.valorSinComision && "Este campo es obligatorio"}
+            required
           />
         </Grid>
         <Grid item>
@@ -100,6 +130,9 @@ function AgregarOperacion({ operaciones, setOperaciones, handleCloseModal }) {
             value={valores.comision}
             onChange={(e) => handleChange("comision", e.target.value)}
             fullWidth
+            error={errors.comision}
+            helperText={errors.comision && "Este campo es obligatorio"}
+            required
           />
         </Grid>
         <Grid item>
@@ -109,6 +142,9 @@ function AgregarOperacion({ operaciones, setOperaciones, handleCloseModal }) {
             value={valores.valorOperacion}
             onChange={(e) => handleChange("valorOperacion", e.target.value)}
             fullWidth
+            error={errors.valorOperacion}
+            helperText={errors.valorOperacion && "Este campo es obligatorio"}
+            required
           />
         </Grid>
         <Grid item>
@@ -118,10 +154,13 @@ function AgregarOperacion({ operaciones, setOperaciones, handleCloseModal }) {
             value={valores.cantidadAcciones}
             onChange={(e) => handleChange("cantidadAcciones", e.target.value)}
             fullWidth
+            error={errors.cantidadAcciones}
+            helperText={errors.cantidadAcciones && "Este campo es obligatorio"}
+            required
           />
         </Grid>
         <Grid item>
-          <Button variant="contained" onClick={handleSubmit}>
+          <Button variant="contained" type="submit">
             Enviar
           </Button>
         </Grid>
