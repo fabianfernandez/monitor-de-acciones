@@ -1,0 +1,12 @@
+.main {
+  background-color: cadetblue;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.main > * {
+  margin-top: 20px;
+  margin-inline: 50px;
+}

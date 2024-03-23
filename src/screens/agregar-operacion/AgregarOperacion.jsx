@@ -128,6 +128,7 @@ function AgregarOperacion({ operaciones, setOperaciones, handleCloseModal }) {
           <TextField
             label="Valor sin comisión"
             type="number"
+            disabled
             value={valores.valorSinComision}
             onChange={(e) => handleChange("valorSinComision", e.target.value)}
             fullWidth

@@ -12,8 +12,10 @@ import {
   Box,
   TablePagination,
   Typography,
+  Card,
 } from "@mui/material";
 import AgregarOperacion from "../agregar-operacion/AgregarOperacion";
+import "./TablaDeComisiones.css";
 
 function TablaDeComisiones() {
   const [openModal, setOpenModal] = useState(false);
@@ -50,7 +52,7 @@ function TablaDeComisiones() {
   };
 
   return (
-    <div>
+    <Card className="container">
       <div
         style={{
           display: "flex",
@@ -125,7 +127,7 @@ function TablaDeComisiones() {
           />
         </Box>
       </Modal>
-    </div>
+    </Card>
   );
 }
 
