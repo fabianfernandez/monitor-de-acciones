@@ -1,3 +1,10 @@
 .container {
   padding: 20px;
 }
+
+.container .titulo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}

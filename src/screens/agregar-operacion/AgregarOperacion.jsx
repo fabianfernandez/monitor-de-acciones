@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  TextField,
-  Grid,
-  Autocomplete,
-  Button,
-  Typography,
-} from "@mui/material";
+import { TextField, Grid, Autocomplete, Button, Typography } from "@mui/material";
 import { v4 as uuidv4 } from "uuid"; // Importación de uuid
 
 function AgregarOperacion({ operaciones, setOperaciones, handleCloseModal }) {
@@ -42,8 +36,7 @@ function AgregarOperacion({ operaciones, setOperaciones, handleCloseModal }) {
 
   useEffect(() => {
     if (valores.valorOperacion !== "" && valores.comision !== "") {
-      const valorSinComision =
-        parseFloat(valores.valorOperacion) - parseFloat(valores.comision);
+      const valorSinComision = parseFloat(valores.valorOperacion) - parseFloat(valores.comision);
       setValores((prevState) => ({
         ...prevState,
         valorSinComision: valorSinComision.toString(),

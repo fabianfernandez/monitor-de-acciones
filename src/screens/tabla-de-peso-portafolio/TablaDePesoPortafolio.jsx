@@ -12,6 +12,8 @@ import {
   TextField,
   Card,
   Typography,
+  Button,
+  Grid,
 } from "@mui/material";
 import "./TablaDePesoPortafolio.css";
 
@@ -19,13 +21,10 @@ function TablaDePesoPortafolio() {
   const [datos, setDatos] = useState([]);
   const [precioActualInput, setPrecioActualInput] = useState({});
   const [totalActualPonderado, setTotalActualPonderado] = useState({});
+  const [contenedorDatos, setContenedorDatos] = useState({});
   useEffect(() => {
-    const operacionesLocalStorage = localStorage.getItem("operaciones");
-    if (operacionesLocalStorage) {
-      const operaciones = JSON.parse(operacionesLocalStorage);
-      const datosProcesados = procesarDatos(operaciones);
-      setDatos(datosProcesados);
-    }
+    cargarOperaciones();
+    cargarValoresActuales();
   }, []);
 
   // Función para procesar los datos de las operaciones
@@ -34,8 +33,9 @@ function TablaDePesoPortafolio() {
     // Objeto para almacenar temporalmente los totales por acción
     const totalesPorAccion = {};
     const cantidadAccionesAux = {};
+    let totalComisiones = 0;
     operaciones.forEach((operacion) => {
-      const { accion, valorOperacion, cantidadAcciones } = operacion;
+      const { accion, valorOperacion, cantidadAcciones, comision } = operacion;
       if (totalesPorAccion[accion]) {
         totalesPorAccion[accion] += parseFloat(valorOperacion);
       } else {
@@ -46,25 +46,27 @@ function TablaDePesoPortafolio() {
       } else {
         cantidadAccionesAux[accion] = parseFloat(cantidadAcciones);
       }
+      totalComisiones += parseFloat(comision);
     });
-
+    let totalInvertido = 0;
     // Convertir los totales por acción en filas de datos
     for (const accion in totalesPorAccion) {
       const montoInvertido = totalesPorAccion[accion];
-      const porcentajeMontoInvertido =
-        (montoInvertido / getTotalInvertido(operaciones)) * 100;
+      const porcentajeMontoInvertido = (montoInvertido / getTotalInvertido(operaciones)) * 100;
       const numeroAcciones = cantidadAccionesAux[accion] || 0;
       const precioActual = precioActualInput[accion] || 0;
-      const totalActualPonderado = 0;
+      const totalActualPonderadoAux = totalActualPonderado[accion] || 0;
+      totalInvertido += montoInvertido;
       datosProcesados.push({
         accion,
         montoInvertido,
         porcentajeMontoInvertido,
         numeroAcciones,
         precioActual,
-        totalActualPonderado,
+        totalActualPonderadoAux,
       });
     }
+    setContenedorDatos({ ...contenedorDatos, totalInvertido, totalComisiones });
     return datosProcesados;
   };
 
@@ -85,9 +87,76 @@ function TablaDePesoPortafolio() {
     });
   };
 
+  const guardarValoresActuales = () => {
+    localStorage.setItem("preciosActualesPortafolio", JSON.stringify(precioActualInput));
+    localStorage.setItem("totalesActualesPortafolio", JSON.stringify(totalActualPonderado));
+  };
+
+  const cargarValoresActuales = () => {
+    const preciosActualesLocalStorage = localStorage.getItem("preciosActualesPortafolio");
+    if (preciosActualesLocalStorage) {
+      const preciosActuales = JSON.parse(preciosActualesLocalStorage);
+      setPrecioActualInput(preciosActuales);
+    }
+    const totalesActualesLocalStorage = localStorage.getItem("totalesActualesPortafolio");
+    if (totalesActualesLocalStorage) {
+      const totalesActuales = JSON.parse(totalesActualesLocalStorage);
+      // const gananciaCapital = calcularTotalGanado(totalesActuales);
+      // const rentabilidad = calcularRentabilidad(gananciaCapital, contenedorDatos.totalInvertido);
+      // setContenedorDatos({ ...contenedorDatos, gananciaCapital, rentabilidad });
+      setTotalActualPonderado(totalesActuales);
+    }
+  };
+
+  const cargarOperaciones = () => {
+    const operacionesLocalStorage = localStorage.getItem("operaciones");
+    if (operacionesLocalStorage) {
+      const operaciones = JSON.parse(operacionesLocalStorage);
+      const datosProcesados = procesarDatos(operaciones);
+      setDatos(datosProcesados);
+    }
+  };
+
+  const calcularTotalGanado = (totalesActuales) => {
+    let total = 0;
+    Object.values(totalesActuales).forEach((totalPonderado) => {
+      total += totalPonderado;
+    });
+    return total;
+  };
+
+  const calcularRentabilidad = (gananciaCapital, totalInvertido) => {
+    const utilidad = gananciaCapital - totalInvertido;
+    console.log(gananciaCapital, totalInvertido);
+    const rentabilidad = (utilidad / totalInvertido) * 100;
+    return rentabilidad;
+  };
+
+  const gananciaCapital = calcularTotalGanado(totalActualPonderado);
+  const rentabilidad = calcularRentabilidad(gananciaCapital, contenedorDatos.totalInvertido);
+
   return (
     <Card className="container">
-      <Typography variant="h4">Peso del portafolio</Typography>
+      <div className="titulo">
+        <Typography variant="h4">Peso del portafolio</Typography>
+        <Button variant="contained" onClick={guardarValoresActuales}>
+          Guardar valores portafolio
+        </Button>
+      </div>
+      <Grid container justifyContent={"space-between"} className="contenedor-datos">
+        <Grid item>
+          <Typography>Total invertido: {contenedorDatos.totalInvertido || 0}</Typography>
+        </Grid>
+        <Grid item>
+          <Typography>Comisiones: {contenedorDatos.totalComisiones || 0}</Typography>
+        </Grid>
+        <Grid item>
+          <Typography>Rentabilidad del capital: {rentabilidad.toFixed(2) || 0}%</Typography>
+        </Grid>
+        <Grid item>
+          <Typography>Valor de la inversion: {gananciaCapital || 0}</Typography>
+        </Grid>
+      </Grid>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -105,20 +174,14 @@ function TablaDePesoPortafolio() {
               <TableRow key={index}>
                 <TableCell>{fila.accion}</TableCell>
                 <TableCell>{fila.montoInvertido}</TableCell>
-                <TableCell>
-                  {fila.porcentajeMontoInvertido.toFixed(2)}%
-                </TableCell>
+                <TableCell>{fila.porcentajeMontoInvertido.toFixed(2)}%</TableCell>
                 <TableCell>{fila.numeroAcciones}</TableCell>
                 <TableCell>
                   <TextField
                     type="number"
                     value={precioActualInput[fila.accion] || ""}
                     onChange={(e) =>
-                      handlePrecioActualChange(
-                        fila.accion,
-                        e.target.value,
-                        fila.numeroAcciones
-                      )
+                      handlePrecioActualChange(fila.accion, e.target.value, fila.numeroAcciones)
                     }
                   />
                 </TableCell>

@@ -53,14 +53,7 @@ function TablaDeComisiones() {
 
   return (
     <Card className="container">
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "20px",
-        }}
-      >
+      <div className="titulo">
         <Typography variant="h4">Operaciones</Typography>
         <Button variant="contained" onClick={handleOpenModal}>
           Agregar operación
