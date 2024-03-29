@@ -2,60 +2,45 @@ import React, { useState } from "react";
 import { Card, Grid, TextField, Typography, Button } from "@mui/material";
 
 function Valorizador() {
-  const [roe, setRoe] = useState(0);
-  const [beneficios, setBeneficios] = useState(0);
-  const [payout, setPayout] = useState(0);
-  const [n, setN] = useState(0);
-  const [tasaRetencion, setTasaRetencion] = useState(0);
-  const [g, setG] = useState(0);
-  const [beneficioFuturo, setBeneficioFuturo] = useState(0);
-  const [perFuturo, setPerFuturo] = useState(0);
-  const [precioFuturo, setPrecioFuturo] = useState(0);
-  const [precioActual, setPrecioActual] = useState(0);
-  const [rentabilidadFutura, setRentabilidadFutura] = useState(0);
+  const [inputs, setInputs] = useState({
+    roe: 0,
+    beneficios: 0,
+    payout: 0,
+    n: 0,
+    perFuturo: 0,
+    precioActual: 0,
+  });
+  const [resultados, setResultados] = useState({
+    tasaRetencion: 0,
+    g: 0,
+    beneficioFuturo: 0,
+    precioFuturo: 0,
+    rentabilidadFutura: 0,
+  });
 
-  const handleRoeChange = (event) => {
-    setRoe(event.target.value);
-  };
-
-  const handleBeneficiosChange = (event) => {
-    setBeneficios(event.target.value);
-  };
-
-  const handlePayoutChange = (event) => {
-    setPayout(event.target.value);
-  };
-
-  const handleNChange = (event) => {
-    setN(event.target.value);
-  };
-
-  const handlePerFuturoChange = (event) => {
-    setPerFuturo(event.target.value);
-  };
-
-  const handlePrecioActualChange = (event) => {
-    setPrecioActual(event.target.value);
+  const handleChange = (event, field) => {
+    setInputs({ ...inputs, [field]: event.target.value });
   };
 
   const calcularParametros = () => {
-    const tasaRetencionValue = (1 - parseFloat(payout)).toFixed(5);
-    setTasaRetencion(tasaRetencionValue);
-
-    const gValue = (parseFloat(tasaRetencionValue) * parseFloat(roe)).toFixed(5);
-    setG(gValue);
-
+    const tasaRetencionValue = (1 - parseFloat(inputs.payout)).toFixed(5);
+    const gValue = (parseFloat(tasaRetencionValue) * parseFloat(inputs.roe)).toFixed(5);
     const beneficioFuturoValue = (
-      parseFloat(beneficios) * Math.pow(1 + parseFloat(gValue), parseInt(n))
+      parseFloat(inputs.beneficios) * Math.pow(1 + parseFloat(gValue), parseInt(inputs.n))
     ).toFixed(5);
-    setBeneficioFuturo(beneficioFuturoValue);
-    const precioFuturoValue = beneficioFuturoValue * perFuturo;
-    setPrecioFuturo(precioFuturoValue);
-    const rentabilidadFuturaValor = ((precioFuturoValue / parseFloat(precioActual)) * 100).toFixed(
-      2
-    );
-    console.log("rentabilidadFuturaValor: ", precioFuturoValue / precioActual);
-    setRentabilidadFutura(rentabilidadFuturaValor);
+    const precioFuturoValue = beneficioFuturoValue * parseFloat(inputs.perFuturo);
+    const rentabilidadFuturaValor = (
+      (precioFuturoValue / parseFloat(inputs.precioActual)) *
+      100
+    ).toFixed(2);
+
+    setResultados({
+      tasaRetencion: tasaRetencionValue,
+      g: gValue,
+      beneficioFuturo: beneficioFuturoValue,
+      precioFuturo: precioFuturoValue,
+      rentabilidadFutura: rentabilidadFuturaValor,
+    });
   };
 
   return (
@@ -71,52 +56,52 @@ function Valorizador() {
           <TextField
             label="Precio Actual"
             variant="outlined"
-            value={precioActual}
-            onChange={handlePrecioActualChange}
+            value={inputs.precioActual}
+            onChange={(e) => handleChange(e, "precioActual")}
             fullWidth
           />
           <TextField
             label="ROE"
             variant="outlined"
-            value={roe}
-            onChange={handleRoeChange}
+            value={inputs.roe}
+            onChange={(e) => handleChange(e, "roe")}
             fullWidth
           />
           <TextField
             label="Beneficios"
             variant="outlined"
-            value={beneficios}
-            onChange={handleBeneficiosChange}
+            value={inputs.beneficios}
+            onChange={(e) => handleChange(e, "beneficios")}
             fullWidth
           />
           <TextField
             label="Payout"
             variant="outlined"
-            value={payout}
-            onChange={handlePayoutChange}
+            value={inputs.payout}
+            onChange={(e) => handleChange(e, "payout")}
             fullWidth
           />
           <TextField
             label="Cantidad de años"
             variant="outlined"
-            value={n}
-            onChange={handleNChange}
+            value={inputs.n}
+            onChange={(e) => handleChange(e, "n")}
             fullWidth
           />
           <TextField
             label="Per Futuro"
             variant="outlined"
-            value={perFuturo}
-            onChange={handlePerFuturoChange}
+            value={inputs.perFuturo}
+            onChange={(e) => handleChange(e, "perFuturo")}
             fullWidth
           />
         </Grid>
         <Grid item xs={6} display={"flex"} flexDirection={"column"} gap={2}>
-          <Typography>Tasa de retención de utilidades: {tasaRetencion}</Typography>
-          <Typography>G: {g}</Typography>
-          <Typography>Beneficio futuro: {beneficioFuturo}</Typography>
-          <Typography>Precio futuro: {precioFuturo}</Typography>
-          <Typography>Posible rentabilidad futura: {rentabilidadFutura} %</Typography>
+          <Typography>Tasa de retención de utilidades: {resultados.tasaRetencion}</Typography>
+          <Typography>G: {resultados.g}</Typography>
+          <Typography>Beneficio futuro: {resultados.beneficioFuturo}</Typography>
+          <Typography>Precio futuro: {resultados.precioFuturo}</Typography>
+          <Typography>Posible rentabilidad futura: {resultados.rentabilidadFutura} %</Typography>
         </Grid>
       </Grid>
     </Card>
