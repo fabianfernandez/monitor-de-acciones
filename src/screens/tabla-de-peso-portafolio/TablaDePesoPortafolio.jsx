@@ -127,7 +127,6 @@ function TablaDePesoPortafolio() {
 
   const calcularRentabilidad = (gananciaCapital, totalInvertido) => {
     const utilidad = gananciaCapital - totalInvertido;
-    console.log(gananciaCapital, totalInvertido);
     const rentabilidad = (utilidad / totalInvertido) * 100;
     return rentabilidad;
   };
