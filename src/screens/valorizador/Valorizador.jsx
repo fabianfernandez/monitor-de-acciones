@@ -2,13 +2,17 @@ import React, { useState } from "react";
 import { Card, Grid, TextField, Typography, Button } from "@mui/material";
 
 function Valorizador() {
-  const [roe, setRoe] = useState("");
-  const [beneficios, setBeneficios] = useState("");
-  const [payout, setPayout] = useState("");
-  const [n, setN] = useState("");
-  const [tasaRetencion, setTasaRetencion] = useState("");
-  const [g, setG] = useState("");
-  const [beneficioFuturo, setBeneficioFuturo] = useState("");
+  const [roe, setRoe] = useState(0);
+  const [beneficios, setBeneficios] = useState(0);
+  const [payout, setPayout] = useState(0);
+  const [n, setN] = useState(0);
+  const [tasaRetencion, setTasaRetencion] = useState(0);
+  const [g, setG] = useState(0);
+  const [beneficioFuturo, setBeneficioFuturo] = useState(0);
+  const [perFuturo, setPerFuturo] = useState(0);
+  const [precioFuturo, setPrecioFuturo] = useState(0);
+  const [precioActual, setPrecioActual] = useState(0);
+  const [rentabilidadFutura, setRentabilidadFutura] = useState(0);
 
   const handleRoeChange = (event) => {
     setRoe(event.target.value);
@@ -26,6 +30,14 @@ function Valorizador() {
     setN(event.target.value);
   };
 
+  const handlePerFuturoChange = (event) => {
+    setPerFuturo(event.target.value);
+  };
+
+  const handlePrecioActualChange = (event) => {
+    setPrecioActual(event.target.value);
+  };
+
   const calcularParametros = () => {
     const tasaRetencionValue = (1 - parseFloat(payout)).toFixed(5);
     setTasaRetencion(tasaRetencionValue);
@@ -37,6 +49,13 @@ function Valorizador() {
       parseFloat(beneficios) * Math.pow(1 + parseFloat(gValue), parseInt(n))
     ).toFixed(5);
     setBeneficioFuturo(beneficioFuturoValue);
+    const precioFuturoValue = beneficioFuturoValue * perFuturo;
+    setPrecioFuturo(precioFuturoValue);
+    const rentabilidadFuturaValor = ((precioFuturoValue / parseFloat(precioActual)) * 100).toFixed(
+      2
+    );
+    console.log("rentabilidadFuturaValor: ", precioFuturoValue / precioActual);
+    setRentabilidadFutura(rentabilidadFuturaValor);
   };
 
   return (
@@ -47,8 +66,15 @@ function Valorizador() {
           Calcular
         </Button>
       </div>
-      <Grid container spacing={2}>
-        <Grid item xs={12}>
+      <Grid container spacing={3} direction={"row"} rowSpacing={10}>
+        <Grid item xs={6} display={"flex"} flexDirection={"column"} gap={2}>
+          <TextField
+            label="Precio Actual"
+            variant="outlined"
+            value={precioActual}
+            onChange={handlePrecioActualChange}
+            fullWidth
+          />
           <TextField
             label="ROE"
             variant="outlined"
@@ -56,8 +82,6 @@ function Valorizador() {
             onChange={handleRoeChange}
             fullWidth
           />
-        </Grid>
-        <Grid item xs={12}>
           <TextField
             label="Beneficios"
             variant="outlined"
@@ -65,8 +89,6 @@ function Valorizador() {
             onChange={handleBeneficiosChange}
             fullWidth
           />
-        </Grid>
-        <Grid item xs={12}>
           <TextField
             label="Payout"
             variant="outlined"
@@ -74,18 +96,27 @@ function Valorizador() {
             onChange={handlePayoutChange}
             fullWidth
           />
+          <TextField
+            label="Cantidad de años"
+            variant="outlined"
+            value={n}
+            onChange={handleNChange}
+            fullWidth
+          />
+          <TextField
+            label="Per Futuro"
+            variant="outlined"
+            value={perFuturo}
+            onChange={handlePerFuturoChange}
+            fullWidth
+          />
         </Grid>
-        <Grid item xs={12}>
-          <TextField label="n" variant="outlined" value={n} onChange={handleNChange} fullWidth />
-        </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={6} display={"flex"} flexDirection={"column"} gap={2}>
           <Typography>Tasa de retención de utilidades: {tasaRetencion}</Typography>
-        </Grid>
-        <Grid item xs={12}>
           <Typography>G: {g}</Typography>
-        </Grid>
-        <Grid item xs={12}>
           <Typography>Beneficio futuro: {beneficioFuturo}</Typography>
+          <Typography>Precio futuro: {precioFuturo}</Typography>
+          <Typography>Posible rentabilidad futura: {rentabilidadFutura} %</Typography>
         </Grid>
       </Grid>
     </Card>
